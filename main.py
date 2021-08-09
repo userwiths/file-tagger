@@ -5,8 +5,6 @@ from tkinter.messagebox import showinfo
 import uuid,os, sys,subprocess
 import sympy,re
 
-from index import IndexManager
-from tags import TagManager
 from view_widgets import TreeManager,BrowserManager
 
 from core import config, factory
