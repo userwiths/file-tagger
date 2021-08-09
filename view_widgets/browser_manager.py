@@ -1,10 +1,21 @@
 from tkinter import ttk
+import tkinter as tk
+from PIL import Image, ImageTk
 
 from core import config, factory
 
-class TreeManager(ttk.Treeview):
+class BrowserManager(ttk.Treeview):
     def __init__(self,application,parentContainer,root,header,populate_tree):
-        super().__init__(parentContainer)
+        self.columns=[
+            ['name','Name'],
+            ['tags','Tags']
+        ]
+        
+        super().__init__(parentContainer,columns=[i[0] for i in self.columns],show='tree',displaycolumns=['tags'])
+
+        for i in self.columns:
+            self.heading(i[0],text=i[1])
+        self.heading('#0',text='')
 
         self.indexer=factory.getInstanceByName(config.indexManager)
         self.tagger=factory.getInstanceByName(config.tagsManager)
@@ -15,10 +26,10 @@ class TreeManager(ttk.Treeview):
         xsb = ttk.Scrollbar(parentContainer, orient='horizontal', command=self.xview)
         
         self.configure(yscroll=ysb.set, xscroll=xsb.set)
-        self.heading('#0', text=header, anchor='w')
-
+        
         self.root_node = self.insert('', 'end', text=root, open=True)
         self.populate_tree=populate_tree
+
         self.grid(row=0, column=0,rowspan=10)
         ysb.grid(column=1,row=0,rowspan=10,sticky="ns")
         xsb.grid(column=0,row=10,columnspan=1,sticky='ew')

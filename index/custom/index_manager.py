@@ -1,6 +1,8 @@
+from core import config, factory
+
 class IndexManager:
     def __init__(self):
-        self.index_item_file="index.txt"
+        self.index_item_file=config.indexFile
         
     # Use and override for new implementations 
     def get_indexed_files(self):

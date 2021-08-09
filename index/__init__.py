@@ -1,1 +1,1 @@
-from .custom import IndexManager
+from .custom.index_manager import IndexManager

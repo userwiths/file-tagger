@@ -1,9 +1,11 @@
 import csv
 
+from core import config, factory
+
 class TagManager:
-    def __init__(self,indexer):
-        self.indexManager=indexer
-        self.tags_file="tags.txt"
+    def __init__(self):
+        self.indexManager=factory.getInstanceByName(config.indexManager)
+        self.tags_file=config.tagsFile
         self.tags=[]
         self.available_tags=[]
         self.selected_paths=[]

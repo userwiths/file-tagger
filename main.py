@@ -7,23 +7,9 @@ import sympy,re
 
 from index import IndexManager
 from tags import TagManager
-from view_widgets import TreeManager
+from view_widgets import TreeManager,BrowserManager
 
-class Factory:
-    def __init__(self):
-        # {NAME:INSTANCE}
-        self.register=[]
-
-    def setInstance(obj):
-        self.register.append({
-            'name':obj.__class__,
-            'instance':obj
-        })
-
-    def getInstance(className):
-        for i in self.register:
-            if i['name'].__class__==className:
-                return i['instance']
+from core import config, factory
 
 class ConfigurationManager:
     def __init__(self):
@@ -39,8 +25,10 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.indexManager=IndexManager()
-        self.tagManager=TagManager(self.indexManager)
+
+        self.factory=factory
+        self.indexManager=self.factory.create(config.indexModule,config.indexManager)
+        self.tagManager=self.factory.create(config.tagModule,config.tagsManager)
         self.notebook=ttk.Notebook(master)
         self.checkBoxes=[]
         self.path='D:/Other'
@@ -50,9 +38,10 @@ class Application(tk.Frame):
 
         self.frameTwo=tk.Frame(master)
         self.frameTwo.pack(fill="both", expand=True)
-        self.frameTwo.columnconfigure([i for i in range(1,12)], weight=1, minsize=20)
-        self.frameTwo.rowconfigure([i for i in range(1,12)], weight=1, minsize=20)
-
+        
+        self.frameThree=tk.Frame(master)
+        self.frameThree.pack(fill="both", expand=True)
+        
         self.tagManagementFrame=tk.Frame(master)
         self.tagManagementFrame.pack(fill="both", expand=True)
 
@@ -61,10 +50,10 @@ class Application(tk.Frame):
         self.addCheckboxes()
 
         abspath = os.path.abspath(self.path)
-        self.tree = TreeManager(self,self.frame,self.tagManager,self.indexManager,abspath,"File Browser",self.process_directory)
+        self.tree = TreeManager(self,self.frame,abspath,"File Browser",self.process_directory)
 
-        self.treeIndexed = TreeManager(self,self.frameTwo,self.tagManager,self.indexManager,'Index',"Indexed Files",self.process_indexed_directory)
-        self.treeIndexed.bind("<Double-1>", self.indexedDoubleClick)
+        self.browserIndexed = BrowserManager(self,self.frameTwo,'Index',"Indexed Files",self.browser_directory_process)
+        self.browserIndexed.bind("<Double-1>", self.indexedDoubleClick)
 
         self.tagName=tk.Entry(self.tagManagementFrame)
         self.tagList=self.addListBox()
@@ -78,7 +67,7 @@ class Application(tk.Frame):
         self.loadTabs([{'frame':self.frame,'text':'File Tagger'},{'frame':self.frameTwo,'text':'Indexed Files'},{'frame':self.tagManagementFrame,'text':'Manage Tags'}])
 
         self.tree.drawTree()
-        self.treeIndexed.drawTree()
+        self.browserIndexed.drawTree()
 
     def loadTabs(self,tabs_data):
         for tab in tabs_data:
@@ -100,7 +89,6 @@ class Application(tk.Frame):
             item=self.treeIndexed.parent(item)
             path.insert(0,self.treeIndexed.item(item)['text'])
         path.remove(path[0])
-        print('\\'.join(path))
         try:
             retcode = subprocess.call("start " + '\\'.join(path), shell=True)
             if retcode < 0:
@@ -178,6 +166,23 @@ class Application(tk.Frame):
 
         self.path=filename
 
+    def browser_directory_process(self, parent, path):
+        itemsRaw=self.tagManager.indexManager.get_indexed_files()
+        formated_file=[]
+        map=[]
+        branch=parent
+        for file in itemsRaw:
+            currentPath=file.split(';')[0]
+            formated_file=re.split(r' |/|\\',currentPath)
+            for part in formated_file:
+                same_name=[e for e in map if e[1]==part]
+                if len([child for child in self.browserIndexed.get_children(branch) if self.browserIndexed.item(child)['text']==part])==0:
+                    branch=self.browserIndexed.insert(branch, 'end', text=part,value=(part,file.split(';')[1]), open=False)
+                    map.append((branch,part))
+                else:
+                    branch=[e[0] for e in map if e[1]==part][0]
+            branch=parent
+        
     def process_indexed_directory(self, parent, path):
         items=[file.split(';')[0] for file in self.tagManager.indexManager.get_indexed_files()]
         formated_file=[]

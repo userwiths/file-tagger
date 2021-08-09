@@ -1,1 +1,1 @@
-from .custom import TagManager
+from .custom.tag_manager import TagManager

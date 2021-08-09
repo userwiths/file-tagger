@@ -1,7 +1,9 @@
+from core import config, factory
+
 class TagManager:
-    def __init__(self,indexer):
-        self.indexManager=indexer
-        self.tags_file="tags.txt"
+    def __init__(self):
+        self.indexManager=factory.getInstanceByName(config.indexManager)
+        self.tags_file=config.tagsFile
         self.tags=[]
         self.available_tags=[]
         self.selected_paths=[]
@@ -46,6 +48,13 @@ class TagManager:
     #Get unique sequence of tags coresponding to a given number.
     def calc_number_tags(self,number):
         return [i for i in sympy.divisors(number) if sympy.isprime(i)]
+
+    def get_tags_from(self,number):
+        tagIndexes=self.calc_number_tags(number)
+        result=[]
+        for i in tagIndexes:
+            result.append(self.available_tags[i])
+        return result
 
     def get_tag_number(self,tag_index):
         return int(self.tags[tag_index][0])
