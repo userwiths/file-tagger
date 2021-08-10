@@ -25,8 +25,11 @@ class Application(tk.Frame):
         self.master = master
 
         self.factory=factory
-        self.indexManager=self.factory.create(config.indexModule,config.indexManager)
-        self.tagManager=self.factory.create(config.tagModule,config.tagsManager)
+        self.indexManager=factory.create(*config.index)
+        self.tagManager=factory.create(*config.tags)
+        self.fileManager=factory.create(*config.realFiles)
+        self.virtualManager=factory.create(*config.virtualFiles)
+
         self.notebook=ttk.Notebook(master)
         self.checkBoxes=[]
         self.path='D:/Other'
@@ -165,43 +168,26 @@ class Application(tk.Frame):
         self.path=filename
 
     def browser_directory_process(self, parent, path):
-        itemsRaw=self.tagManager.indexManager.get_indexed_files()
+        vnodes=self.virtualManager.get_all_items()
         formated_file=[]
         map=[]
         branch=parent
-        for file in itemsRaw:
-            currentPath=file.split(';')[0]
+        for file in vnodes:
+            currentPath=file.path
             formated_file=re.split(r' |/|\\',currentPath)
             for part in formated_file:
                 same_name=[e for e in map if e[1]==part]
                 if len([child for child in self.browserIndexed.get_children(branch) if self.browserIndexed.item(child)['text']==part])==0:
-                    branch=self.browserIndexed.insert(branch, 'end', text=part,value=(part,file.split(';')[1]), open=False)
-                    map.append((branch,part))
-                else:
-                    branch=[e[0] for e in map if e[1]==part][0]
-            branch=parent
-        
-    def process_indexed_directory(self, parent, path):
-        items=[file.split(';')[0] for file in self.tagManager.indexManager.get_indexed_files()]
-        formated_file=[]
-        map=[]
-        branch=parent
-        for file in items:
-            formated_file=re.split(r' |/|\\',file)
-            
-            for part in formated_file:
-                same_name=[e for e in map if e[1]==part]
-                if len([child for child in self.treeIndexed.get_children(branch) if self.treeIndexed.item(child)['text']==part])==0:
-                    branch=self.treeIndexed.insert(branch, 'end', text=part, open=False)
+                    branch=self.browserIndexed.insert(branch, 'end', text=part,value=(file.name,file.value), open=False)
                     map.append((branch,part))
                 else:
                     branch=[e[0] for e in map if e[1]==part][0]
             branch=parent
 
     def process_directory(self, parent, path):
-        for p in os.listdir(path):
+        for p in self.fileManager.get_children(path):
             abspath = os.path.join(path, p)
-            isdir = os.path.isdir(abspath)
+            isdir = self.fileManager.is_traversable(abspath)
             oid = self.tree.insert(parent, 'end', text=p, open=False)
             if isdir:
                 self.tree.insert(oid, 'end', text='', open=False)

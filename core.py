@@ -1,3 +1,20 @@
+import re
+
+class VNode:
+    def __init__(self):
+        self.path=''
+        self.name=''
+        self.value=0
+        self.other={}
+
+    def build(self,data):
+        self.value=data.split(';')[1]
+        self.path=data.split(';')[0]
+        self.name=re.split(r' |/|\\',self.path)[-1:]
+        self.name=self.name[0]
+
+        return self
+
 class Config:
     def __init__(self):
         self.name=''
@@ -22,8 +39,15 @@ class ConfigAdvanced:
         self.indexManager='IndexManager'
         self.tagsManager='TagManager'
 
+        self.index=('index',self.indexManager)
+        self.tags=('tags',self.tagsManager)
+        self.realFiles=('files','FileManager')
+        self.virtualFiles=('files','VirtualManager')
+
         self.tagsFile='tags.txt'
         self.indexFile='index.txt'
+
+        self.commentSymbol="#"
 
 class Factory:
     def __init__(self):

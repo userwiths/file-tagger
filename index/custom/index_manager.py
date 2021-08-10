@@ -9,6 +9,7 @@ class IndexManager:
         file=open(self.index_item_file,"r")
         lines=file.readlines()
         file.close()
+
         return lines
     
     def tag_item(self,tag_number,item_path):

@@ -23,9 +23,8 @@ class TagManager:
         tags=file.readlines()
         file.close()
 
-        for i in range(0,len(tags)):
-            tags[i]=tags[i].strip('\n')
-        self.tags=[line.split(';') for line in tags if not line.startswith('#') and len(line.strip('\n'))>0]
+        tempTags=self.format_lines_before_read(tags)
+        self.tags=[line.split(';') for line in tempTags]
         self.available_tags=[line[1] for line in self.tags]
 
         return tags
@@ -61,6 +60,9 @@ class TagManager:
 
     def get_number_item(self,item_path):
         return [i.split(';')[1] for i in self.get_indexed_files() if i.strip('\n')==item_path]
+
+    def format_lines_before_read(self,lines):
+        return [i.strip('\n') for i in lines if not i.startswith(config.commentSymbol) and len(i)>2]
 
     def verify_tag_integrity(self):
         tags=self.load_tags()
