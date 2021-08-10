@@ -1,5 +1,5 @@
 import csv
-
+import sympy
 from core import config, factory
 
 class TagManager:
@@ -84,9 +84,14 @@ class TagManager:
     def add_new_tag(self,tag_name):
         #get last assigned number
         number=int(self.tags[-1][0])
+        number=sympy.nextprime(number)
+
         with open(self.tags_file, 'a', newline='') as f:
             writer = csv.writer(f,delimiter=self.delimiter)
             writer.writerow([number,tag_name])
+        
+        self.load_tags()
+
         return number
 
     def remove_existing_tag(self,tag_index):

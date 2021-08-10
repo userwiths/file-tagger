@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 import uuid,os, sys,subprocess
-import sympy,re
+import re
 
 from view_widgets import TreeManager,BrowserManager
 
