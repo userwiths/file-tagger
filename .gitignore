@@ -1,3 +1,6 @@
 *.txt
 *.js
 __pycache__
+_*
+make.bat
+Makefile
