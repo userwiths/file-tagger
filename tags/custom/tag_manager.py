@@ -15,7 +15,6 @@ class TagManager:
 
         return self.available_tags
         
-    @lru_cache(maxsize=4)
     def load_tags(self):
         path=self.tags_file
 
@@ -28,15 +27,7 @@ class TagManager:
         self.available_tags=[line[1] for line in self.tags]
 
         return tags
-
-    def tag_item(self,tag_indexes:list,item_path:str):
-        if self.indexManager.is_tagged(item_path):
-            self.edit_tag(tag_indexes,item_path)
-            return
-
-        number=self.calc_tags_number(tag_indexes)
-        self.indexManager.tag_item(number,item_path)
-        
+    
     #Get number coresponding to a unique sequence of tags.
     def calc_tags_number(self,tag_indexes:list):
         number=1

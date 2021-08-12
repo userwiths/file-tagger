@@ -31,14 +31,6 @@ class TagManager:
                     self.available_tags.append(row[1])
 
         return self.tags
-
-    def tag_item(self,tag_indexes:list,item_path:str):
-        if self.indexManager.is_tagged(item_path):
-            self.edit_tag(tag_indexes,item_path)
-            return
-
-        number=self.calc_tags_number(tag_indexes)
-        self.indexManager.tag_item(number,item_path)
         
     #Get number coresponding to a unique sequence of tags.
     def calc_tags_number(self,tag_indexes:list):

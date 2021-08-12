@@ -1,23 +1,26 @@
-from declaration import config, factory
+import csv
+import sympy
+from declaration import config, factory, invalidate
 
 class IndexManager:
     def __init__(self):
         self.index_item_file=config.indexFile
         self.indexed_items=[]
 
-    # Use and override for new implementations 
-    def get_indexed_files(self):
-        """
-        Load indexed files in memory.
-        """
-        self.indexed_items=[]
-
-        file=open(self.index_item_file,"r")
-        self.indexed_items=file.readlines()
-        file.close()
-
-        return lines
+        self.delimiter=';'
     
+    def get_indexed_files(self):
+        self.indexed_items=[]
+        path=self.index_item_file
+
+        with open(path,newline='') as csvfile:
+            reader=csv.reader(csvfile,delimiter=self.delimiter)
+            for row in reader:
+                if len(row)==2:
+                    self.indexed_items.append(row)
+
+        return self.indexed_items
+
     @invalidate
     def tag_item(self,tag_number:int,item_path:str):
         """
@@ -27,30 +30,30 @@ class IndexManager:
             self.edit_tag(tag_indexes,item_path)
             return
 
-        file=open(self.index_item_file,"a")
-        file.write(item_path+";"+str(tag_number)+'\n')
-        file.close()
-
+        with open(self.index_item_file, 'a', newline='') as f:
+            writer = csv.writer(f,delimiter=self.delimiter)
+            writer.writerow([item_path,tag_number])
+        
     @invalidate
     def edit_tag(self,tag_number:int,item_path:str):
         """
         Change tag number of a given item.
         """
         files_indexes=self.indexed_items
-        file=open(self.index_item_file,'w')
-        for index in files_indexes:
-            fileName=index.split(';')[0]
-            if fileName==item_path:
-                file.write(fileName+";"+str(tag_number)+'\n')
-            else:
-                file.write(index)
-        file.close()
+        
+        with open(self.index_item_file, 'w', newline='') as f:
+            writer = csv.writer(f,delimiter=self.delimiter)
+            for index in files_indexes:        
+                if index[0]==item_path:
+                    writer.writerow([item_path,tag_number])
+                else:
+                    writer.writerow(index)
 
     def get_items_with_all_tags(self,number:int):
         """
         Returns a list of the items containing ALL tags defined by 'number'
         """
-        return [i.split(';')[0] for i in self.indexed_items if i.strip('\n').endswith(str(number))]
+        return [i[0] for i in self.indexed_items if i[1].strip('\n').endswith(str(number))]
 
     def get_items_with_any_tag(self,numbers:list):
         """
@@ -58,7 +61,7 @@ class IndexManager:
         """
         result=[]
         for item in self.indexed_items:
-            number=int(item.strip('\n').split(';')[1])
+            number=int(item[1].strip('\n'))
             for index in numbers:
                 if number%index==0:
                     result.append(item)
@@ -70,17 +73,14 @@ class IndexManager:
         """
         Returns 'true' in case the 'item' has been tagged with any tag.
         """
-        return len([i for i in self.indexed_items if i.strip('\n')==item])>0
+        return len([i for i in self.indexed_items if i[1].strip('\n')==item])>0
 
-    @invalidate
     def reindex_files(self,removed_tag_number:int):
         """
         Reindex in case a tag has been deleted.
         """
         files_indexes=self.indexed_items
         number=0
-        file=open(self.index_item_file,'w')
-        for index in files_indexes:
-            number=int(index.split(';')[1])/removed_tag_number
-            file.write(index.split(';')[0]+";"+str(number)+'\n')
-        file.close()
+        with open(self.index_item_file, 'w', newline='') as f:
+            writer = csv.writer(f,delimiter=self.delimiter)
+            writer.writerow([index[0],str(number)])

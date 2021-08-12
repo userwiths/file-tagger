@@ -9,9 +9,17 @@ class VNode:
         self.value=0
         self.other={}
 
-    def build(self,data):
+    def build(self,data:str):
         self.value=data.split(';')[1]
         self.path=data.split(';')[0]
+        self.name=re.split(r' |/|\\',self.path)[-1:]
+        self.name=self.name[0]
+
+        return self
+
+    def build(self,data:list):
+        self.value=data[1]
+        self.path=data[0]
         self.name=re.split(r' |/|\\',self.path)[-1:]
         self.name=self.name[0]
 
@@ -27,7 +35,7 @@ def invalidate(func):
     @wraps(func)    
     def execute_and_invalidate(*args, **kwargs):
         func(*args, **kwargs)
-        print(factory.getInstanceByName('TagManager').load_tags())
+        print(func.__name__+" has triggered validation !")
         print('\n')
     return execute_and_invalidate
 

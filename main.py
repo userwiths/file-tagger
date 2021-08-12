@@ -106,7 +106,7 @@ class Application(tk.Frame):
         opendir.grid(row=6,column=8)
 
     def tag_item(self):
-        self.tagManager.tag_item([1,2],self.tree.get_path(self.tree.selection(),False))
+        self.indexManager.tag_item(self.tagManager.calc_tags_number([1,2]),self.tree.get_path(self.tree.selection(),False))
 
     def addCheckboxes(self):
         index=0
