@@ -1,5 +1,5 @@
 import re
-from core import config,factory,VNode
+from declaration import config,factory,VNode
 
 class VirtualManager:
     def __init__(self):

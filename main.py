@@ -7,17 +7,8 @@ import re
 
 from view_widgets import TreeManager,BrowserManager
 
-from core import config, factory
-
-class ConfigurationManager:
-    def __init__(self):
-        self.indexFile='index.txt'
-        self.tagsFile='tags.txt'
-        self.browseRoot='D:\\Other'
-
-        self.indexManager='IndexManager'
-        self.tagsManager='TagManager'
-        self.treeManager='TreeManager'
+from declaration import config, factory
+from cache import CacheManager
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -25,10 +16,12 @@ class Application(tk.Frame):
         self.master = master
 
         self.factory=factory
+        self.cacheManager=factory.create('cache','CacheManager')
         self.indexManager=factory.create(*config.index)
         self.tagManager=factory.create(*config.tags)
         self.fileManager=factory.create(*config.realFiles)
         self.virtualManager=factory.create(*config.virtualFiles)
+        self.fileHandler=factory.create(*config.fileHandler)
 
         self.notebook=ttk.Notebook(master)
         self.checkBoxes=[]
@@ -70,7 +63,7 @@ class Application(tk.Frame):
         self.tree.drawTree()
         self.browserIndexed.drawTree()
 
-    def loadTabs(self,tabs_data):
+    def loadTabs(self,tabs_data:dict):
         for tab in tabs_data:
             self.notebook.add(tab['frame'],text=tab['text'])
         self.notebook.pack()
@@ -84,20 +77,9 @@ class Application(tk.Frame):
         self.addButtons()
 
     def indexedDoubleClick(self,event):
-        item=self.treeIndexed.selection()[0]
-        path=[self.treeIndexed.item(item)['text']]
-        while self.treeIndexed.parent(item):
-            item=self.treeIndexed.parent(item)
-            path.insert(0,self.treeIndexed.item(item)['text'])
-        path.remove(path[0])
-        try:
-            retcode = subprocess.call("start " + '\\'.join(path), shell=True)
-            if retcode < 0:
-                print("Child was terminated by signal "+ str(-retcode))
-            else:
-                print("Child returned "+ str(retcode))
-        except OSError:
-            print("Execution failed:")
+        item=self.browserIndexed.selection()[0]
+        path=self.browserIndexed.get_path(item,True)
+        self.fileHandler.handle(path)
 
     def addListBox(self):
         box=tk.Listbox(self.tagManagementFrame)
@@ -167,7 +149,7 @@ class Application(tk.Frame):
 
         self.path=filename
 
-    def browser_directory_process(self, parent, path):
+    def browser_directory_process(self, parent, path:str):
         vnodes=self.virtualManager.get_all_items()
         formated_file=[]
         map=[]

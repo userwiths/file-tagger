@@ -1,4 +1,5 @@
-from core import config, factory
+from declartaion import config, factory
+from functools import lru_cache
 
 class TagManager:
     def __init__(self):
@@ -15,9 +16,9 @@ class TagManager:
 
         return self.available_tags
         
-    def load_tags(self,path=''):
-        if path=='':
-            path=self.tags_file
+    @lru_cache(maxsize=4)
+    def load_tags(self):
+        path=self.tags_file
 
         file=open(path,"r")
         tags=file.readlines()
@@ -29,7 +30,7 @@ class TagManager:
 
         return tags
 
-    def tag_item(self,tag_indexes,item_path):
+    def tag_item(self,tag_indexes:list,item_path:str):
         if self.indexManager.is_tagged(item_path):
             self.edit_tag(tag_indexes,item_path)
             return
@@ -38,30 +39,30 @@ class TagManager:
         self.indexManager.tag_item(number,item_path)
         
     #Get number coresponding to a unique sequence of tags.
-    def calc_tags_number(self,tag_indexes):
+    def calc_tags_number(self,tag_indexes:list):
         number=1
         for tag in tag_indexes:
             number*=int(self.tags[tag][0])
         return number
 
     #Get unique sequence of tags coresponding to a given number.
-    def calc_number_tags(self,number):
+    def calc_number_tags(self,number:int):
         return [i for i in sympy.divisors(number) if sympy.isprime(i)]
 
-    def get_tags_from(self,number):
+    def get_tags_from(self,number:int):
         tagIndexes=self.calc_number_tags(number)
         result=[]
         for i in tagIndexes:
             result.append(self.available_tags[i])
         return result
 
-    def get_tag_number(self,tag_index):
+    def get_tag_number(self,tag_index:int):
         return int(self.tags[tag_index][0])
 
-    def get_number_item(self,item_path):
+    def get_number_item(self,item_path:str):
         return [i.split(';')[1] for i in self.get_indexed_files() if i.strip('\n')==item_path]
 
-    def format_lines_before_read(self,lines):
+    def format_lines_before_read(self,lines:list):
         return [i.strip('\n') for i in lines if not i.startswith(config.commentSymbol) and len(i)>2]
 
     def verify_tag_integrity(self):
@@ -88,7 +89,7 @@ class TagManager:
 
         return True
 
-    def add_new_tag(self,tag_name):
+    def add_new_tag(self,tag_name:str):
         #get last assigned number
         number=int(self.tags[-1][0])
         #get next prime number to be the assigned to the new tag
@@ -98,10 +99,10 @@ class TagManager:
         file.close()
         return number
 
-    def remove_existing_tag(self,tag_index):
+    def remove_existing_tag(self,tag_index:int):
         self.indexManager.reindex_files(int(self.tags[tag_index].split(';')[0]))
 
-    def edit_existing_tag(self,tag_index,tag_name):
+    def edit_existing_tag(self,tag_index:int,tag_name:str):
         tags=[]
         edited_tag=self.tags[tag_index]
         file=open(self.tags_file,'r')

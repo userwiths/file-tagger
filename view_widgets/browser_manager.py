@@ -2,9 +2,13 @@ from tkinter import ttk
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from core import config, factory
+from declaration import config, factory
 
 class BrowserManager(ttk.Treeview):
+    """
+    Represents a tree which is used to display the currently tagged files and theyr tag numbers or/and tags.
+    """
+
     def __init__(self,application,parentContainer,root,header,populate_tree):
         self.columns=[
             ['name','Name'],
@@ -27,6 +31,7 @@ class BrowserManager(ttk.Treeview):
         
         self.configure(yscroll=ysb.set, xscroll=xsb.set)
         
+        self.root_text=root
         self.root_node = self.insert('', 'end', text=root, open=True)
         self.populate_tree=populate_tree
 
@@ -34,13 +39,29 @@ class BrowserManager(ttk.Treeview):
         ysb.grid(column=1,row=0,rowspan=10,sticky="ns")
         xsb.grid(column=0,row=10,columnspan=1,sticky='ew')
 
+    def clear(self):
+        """
+        Clears all children of the widget.
+        """
+        self.delete(*self.get_children())
+
     def drawTree(self):
+        """
+        Clear the widget and execute the function that is meant to populate it with data.
+        """
+        self.clear()
+        self.root_node = self.insert('', 'end', text=self.root_text, open=True)
         self.populate_tree(self.root_node,self.rootText)
 
     def redrawTree(self):
         pass
 
     def get_path(self,item,remove_root):
+        """
+        Get the 'path' to a given item.
+        If 'remove_root' is true, remove the value assigned by the root of the tree.
+        The path represents the current node's text, prepended by its parent, and so forth untill there is no parent. 
+        """
         current_item=self.item(item)
         parent_item=self.parent(item)
         result=[current_item["text"]]
