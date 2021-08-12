@@ -1,8 +1,6 @@
 import csv
 import sympy
-from declaration import config, factory
-from cache import invalidate
-from functools import lru_cache
+from declaration import config, factory, invalidate
 
 class TagManager:
     def __init__(self):
@@ -21,8 +19,8 @@ class TagManager:
 
         return self.available_tags
     
-    @lru_cache(maxsize=4)
     def load_tags(self):
+        self.tags=[]
         path=self.tags_file
 
         with open(path,newline='') as csvfile:

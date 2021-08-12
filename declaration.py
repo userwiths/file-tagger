@@ -1,4 +1,5 @@
 import re
+from functools import wraps
 from core import Factory,ConfigAdvanced
 
 class VNode:
@@ -16,5 +17,19 @@ class VNode:
 
         return self
         
+cache=[
+    {'name':'TagManager','method':'load_tags','store':None},
+    {'name':'IndexManager','method':'load_files','store':None},
+    {'name':'TagManager','method':'load_tags','store':None}
+]
+
+def invalidate(func):
+    @wraps(func)    
+    def execute_and_invalidate(*args, **kwargs):
+        func(*args, **kwargs)
+        print(factory.getInstanceByName('TagManager').load_tags())
+        print('\n')
+    return execute_and_invalidate
+
 factory=Factory()
 config=ConfigAdvanced()

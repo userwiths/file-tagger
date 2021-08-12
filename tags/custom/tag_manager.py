@@ -1,5 +1,4 @@
-from declartaion import config, factory
-from functools import lru_cache
+from declartaion import config, factory,invalidate
 
 class TagManager:
     def __init__(self):

@@ -1,21 +1,3 @@
-from functools import wraps
-
-cache=[
-    {'name':'TagManager','method':'load_tags','store':None},
-    {'name':'IndexManager','method':'load_files','store':None},
-    {'name':'TagManager','method':'load_tags','store':None}
-]
-
-def invalidate(func):
-    @wraps(func)    
-    def execute_and_invalidate(*args, **kwargs):
-        func(*args, **kwargs)
-        print(dir(func))
-        print("Module: "+func.__module__)
-        print("Class: "+func.__class__.__name__)
-        print("Name: "+func.__name__)
-    return execute_and_invalidate
-
 class CacheRecord:
     def __init__(self,name,method):
         self.name=name
