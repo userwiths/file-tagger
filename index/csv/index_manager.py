@@ -8,15 +8,19 @@ class IndexManager:
         self.indexed_items=[]
 
         self.delimiter=';'
+        self.new_line=''
     
     def get_indexed_files(self):
+        """
+        Returns all currently tagged files.
+        """
         self.indexed_items=[]
         path=self.index_item_file
 
-        with open(path,newline='') as csvfile:
+        with open(path,newline=self.new_line) as csvfile:
             reader=csv.reader(csvfile,delimiter=self.delimiter)
             for row in reader:
-                if len(row)==2:
+                if len(row)>=2:
                     self.indexed_items.append(row)
 
         return self.indexed_items
@@ -30,9 +34,9 @@ class IndexManager:
             self.edit_tag(tag_indexes,item_path)
             return
 
-        with open(self.index_item_file, 'a', newline='') as f:
+        with open(self.index_item_file, 'a', newline=self.new_line) as f:
             writer = csv.writer(f,delimiter=self.delimiter)
-            writer.writerow([item_path,tag_number])
+            writer.writerow([item_path,tag_number,self.get_type(item_path)])
         
     @invalidate
     def edit_tag(self,tag_number:int,item_path:str):
@@ -41,11 +45,11 @@ class IndexManager:
         """
         files_indexes=self.indexed_items
         
-        with open(self.index_item_file, 'w', newline='') as f:
+        with open(self.index_item_file, 'w', newline=self.new_line) as f:
             writer = csv.writer(f,delimiter=self.delimiter)
             for index in files_indexes:        
                 if index[0]==item_path:
-                    writer.writerow([item_path,tag_number])
+                    writer.writerow([item_path,tag_number,self.get_type(item_path)])
                 else:
                     writer.writerow(index)
 
@@ -81,6 +85,12 @@ class IndexManager:
         """
         files_indexes=self.indexed_items
         number=0
-        with open(self.index_item_file, 'w', newline='') as f:
+        with open(self.index_item_file, 'w', newline=self.new_line) as f:
             writer = csv.writer(f,delimiter=self.delimiter)
-            writer.writerow([index[0],str(number)])
+            writer.writerow([index[0],str(number),index[2]])
+
+    def get_type(self,path):
+        if path.startswith("http"):
+            return "http"
+        else:
+            return "filesystem"

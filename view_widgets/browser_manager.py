@@ -9,7 +9,7 @@ class BrowserManager(ttk.Treeview):
     Represents a tree which is used to display the currently tagged files and theyr tag numbers or/and tags.
     """
 
-    def __init__(self,application,parentContainer,root,header,populate_tree):
+    def __init__(self,application,parentContainer,root_nodes,header,populate_tree):
         self.columns=[
             ['name','Name'],
             ['tags','Tags']
@@ -24,20 +24,34 @@ class BrowserManager(ttk.Treeview):
         self.indexer=factory.getInstanceByName(config.indexManager)
         self.tagger=factory.getInstanceByName(config.tagsManager)
         self.application=application
-        self.rootText=root
+        self.rootText=root_nodes[0]
 
         ysb = ttk.Scrollbar(parentContainer, orient='vertical', command=self.yview)
         xsb = ttk.Scrollbar(parentContainer, orient='horizontal', command=self.xview)
         
         self.configure(yscroll=ysb.set, xscroll=xsb.set)
         
-        self.root_text=root
-        self.root_node = self.insert('', 'end', text=root, open=True)
+        self.root_nodes=root_nodes
+        
+        self.__init_childs__()
+        
         self.populate_tree=populate_tree
 
         self.grid(row=0, column=0,rowspan=10)
         ysb.grid(column=1,row=0,rowspan=10,sticky="ns")
         xsb.grid(column=0,row=10,columnspan=1,sticky='ew')
+
+    def __init_childs__(self):
+        """
+        Creates the basic required child components for the widget.
+        """
+        skip=True
+        self.root_node = self.insert('', 'end', text=self.root_nodes[0], open=True)
+        for i in self.root_nodes:
+            if skip:
+                skip=False
+                continue
+            self.insert('', 'end', text=i, open=True)
 
     def clear(self):
         """
@@ -50,8 +64,8 @@ class BrowserManager(ttk.Treeview):
         Clear the widget and execute the function that is meant to populate it with data.
         """
         self.clear()
-        self.root_node = self.insert('', 'end', text=self.root_text, open=True)
-        self.populate_tree(self.root_node,self.rootText)
+        self.__init_childs__()
+        self.populate_tree(self.rootText)
 
     def redrawTree(self):
         pass

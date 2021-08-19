@@ -44,9 +44,9 @@ class Application(tk.Frame):
         self.addCheckboxes()
 
         abspath = os.path.abspath(self.path)
-        self.tree = TreeManager(self,self.frame,abspath,"File Browser",self.process_directory)
+        self.tree = TreeManager(self,self.frame,abspath,"filesystem",self.process_directory)
 
-        self.browserIndexed = BrowserManager(self,self.frameTwo,'Index',"Indexed Files",self.browser_directory_process)
+        self.browserIndexed = BrowserManager(self,self.frameTwo,['filesystem',"http"],"Indexed Files",self.browser_directory_process)
         self.browserIndexed.bind("<Double-1>", self.indexedDoubleClick)
 
         self.tagName=tk.Entry(self.tagManagementFrame)
@@ -149,22 +149,29 @@ class Application(tk.Frame):
 
         self.path=filename
 
-    def browser_directory_process(self, parent, path:str):
+    def browser_directory_process(self, path:str):
         vnodes=self.virtualManager.get_all_items()
         formated_file=[]
         map=[]
-        branch=parent
         for file in vnodes:
+            branch=[i for i in self.browserIndexed.get_children() if self.browserIndexed.item(i)['text']==file.other[0]]
+
             currentPath=file.path
+            value=file.value
             formated_file=re.split(r' |/|\\',currentPath)
+            
             for part in formated_file:
+                if not file.path.endswith(part):
+                    value=None
+                else:
+                    value=file.value
+                    
                 same_name=[e for e in map if e[1]==part]
                 if len([child for child in self.browserIndexed.get_children(branch) if self.browserIndexed.item(child)['text']==part])==0:
-                    branch=self.browserIndexed.insert(branch, 'end', text=part,value=(file.name,file.value), open=False)
+                    branch=self.browserIndexed.insert(branch, 'end', text=part,value=(file.name,value), open=False)
                     map.append((branch,part))
                 else:
                     branch=[e[0] for e in map if e[1]==part][0]
-            branch=parent
 
     def process_directory(self, parent, path):
         for p in self.fileManager.get_children(path):
@@ -175,9 +182,8 @@ class Application(tk.Frame):
                 self.tree.insert(oid, 'end', text='', open=False)
     
     def open_directory_tree(self,event):
-        if event.widget.heading('#0')['text']=="Indexed Files":
+        if event.widget.heading('#0')['text']!="filesystem":
             return
-
         selected_id=self.tree.selection()
         selected_item=self.tree.item(selected_id)
         children=self.tree.get_children(selected_id)
@@ -186,7 +192,7 @@ class Application(tk.Frame):
         self.process_directory(selected_id,self.tree.get_path(selected_id,False))
 
     def close_directory_tree(self,event):
-        if event.widget.heading('#0')['text']=="Indexed Files":
+        if event.widget.heading('#0')['text']=="filesystem":
             return
 
         selected_id=self.tree.focus()

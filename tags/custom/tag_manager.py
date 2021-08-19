@@ -53,7 +53,7 @@ class TagManager:
         return [i.split(';')[1] for i in self.get_indexed_files() if i.strip('\n')==item_path]
 
     def format_lines_before_read(self,lines:list):
-        return [i.strip('\n') for i in lines if not i.startswith(config.commentSymbol) and len(i)>2]
+        return [i.strip('\n') for i in lines if not len([e for e in config.commentSymbols if i.startswith(e)])>0 and len(i)>2]
 
     def verify_tag_integrity(self):
         tags=self.load_tags()

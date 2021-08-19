@@ -31,4 +31,6 @@ class ConfigAdvanced:
         self.tagsFile='tags.txt'
         self.indexFile='index.txt'
 
-        self.commentSymbol="#"
+        self.commentSymbols=["#"]
+
+        self.directoryTag="identity"
