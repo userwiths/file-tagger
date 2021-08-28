@@ -1,6 +1,7 @@
 import uuid,os, sys,subprocess
 
-class FileHandler:
+from core import FileHandler
+class FileHandler(FileHandler):
     """
     This class is meant to function as an abstraction for actions upon files.
     This current version allows the execution of a command in the system shell with the file passed as argument.

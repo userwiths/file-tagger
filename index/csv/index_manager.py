@@ -1,8 +1,9 @@
 import csv
 import sympy
-from declaration import config, factory, invalidate
+from core.abstract import IndexManager 
+from declaration import config, factory, invalidate,VNode
 
-class IndexManager:
+class IndexManager(IndexManager):
     def __init__(self):
         self.index_item_file=config.indexFile
         self.indexed_items=[]
@@ -21,7 +22,7 @@ class IndexManager:
             reader=csv.reader(csvfile,delimiter=self.delimiter)
             for row in reader:
                 if len(row)>=2:
-                    self.indexed_items.append(row)
+                    self.indexed_items.append(VNode().build(row))
 
         return self.indexed_items
 
@@ -57,7 +58,7 @@ class IndexManager:
         """
         Returns a list of the items containing ALL tags defined by 'number'
         """
-        return [i[0] for i in self.indexed_items if i[1].strip('\n').endswith(str(number))]
+        return [i[0] for i in self.indexed_items if i[1].endswith(str(number))]
 
     def get_items_with_any_tag(self,numbers:list):
         """
@@ -65,7 +66,7 @@ class IndexManager:
         """
         result=[]
         for item in self.indexed_items:
-            number=int(item[1].strip('\n'))
+            number=int(item[1])
             for index in numbers:
                 if number%index==0:
                     result.append(item)
@@ -77,7 +78,7 @@ class IndexManager:
         """
         Returns 'true' in case the 'item' has been tagged with any tag.
         """
-        return len([i for i in self.indexed_items if i[1].strip('\n')==item])>0
+        return len([i for i in self.indexed_items if i.path==item])>0
 
     def reindex_files(self,removed_tag_number:int):
         """
@@ -89,7 +90,7 @@ class IndexManager:
             writer = csv.writer(f,delimiter=self.delimiter)
             writer.writerow([index[0],str(number),index[2]])
 
-    def get_type(self,path):
+    def get_type(self,path:str):
         if path.startswith("http"):
             return "http"
         else:

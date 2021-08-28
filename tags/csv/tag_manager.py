@@ -1,8 +1,9 @@
 import csv
 import sympy
+from core import TagManager
 from declaration import config, factory, invalidate
 
-class TagManager:
+class TagManager(TagManager):
     def __init__(self):
         self.indexManager=factory.getInstanceByName(config.indexManager)
         self.tags_file=config.tagsFile
@@ -35,8 +36,9 @@ class TagManager:
     #Get number coresponding to a unique sequence of tags.
     def calc_tags_number(self,tag_indexes:list):
         number=1
-        for tag in tag_indexes:
-            number*=int(self.tags[tag][0])
+        for i in range(0,len(tag_indexes)):
+            if(tag_indexes[i]!=0):
+                number*=int(self.tags[i][0])
         return number
 
     #Get unique sequence of tags coresponding to a given number.

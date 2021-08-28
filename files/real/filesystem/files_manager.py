@@ -1,6 +1,7 @@
 import uuid,os, sys,subprocess
+from core import FileManager
 
-class FileManager:
+class FileManager(FileManager):
     """
     This class is an abstraction responsible for providing basic information about the REAL file system.
     """

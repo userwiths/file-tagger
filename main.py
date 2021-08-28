@@ -5,7 +5,7 @@ from tkinter.messagebox import showinfo
 import uuid,os, sys,subprocess
 import re
 
-from view_widgets import TreeManager,BrowserManager
+from view_widgets import TreeManager,BrowserManager,CheckBoxContainer
 
 from declaration import config, factory
 from cache import CacheManager
@@ -31,17 +31,17 @@ class Application(tk.Frame):
         self.frame.pack(fill=tk.BOTH, expand=True)
 
         self.frameTwo=tk.Frame(master)
-        self.frameTwo.pack(fill="both", expand=True)
+        self.frameTwo.pack(fill=tk.BOTH, expand=True)
         
         self.frameThree=tk.Frame(master)
-        self.frameThree.pack(fill="both", expand=True)
+        self.frameThree.pack(fill=tk.BOTH, expand=True)
         
         self.tagManagementFrame=tk.Frame(master)
-        self.tagManagementFrame.pack(fill="both", expand=True)
+        self.tagManagementFrame.pack(fill=tk.BOTH, expand=True)
 
-        self.checkboxFrame=tk.Frame(self.frame)
-        self.checkboxFrame.grid(column=2,columnspan=6,row=2)
-        self.addCheckboxes()
+        self.checkboxFrame=CheckBoxContainer(self.frame,self.tagManager.get_tags())#tk.Frame(self.frame)
+        self.checkboxFrame.grid(rowspan=4,column=2,columnspan=6,row=2)
+        #self.addCheckboxes()
 
         abspath = os.path.abspath(self.path)
         self.tree = TreeManager(self,self.frame,abspath,"filesystem",self.process_directory)
@@ -106,7 +106,7 @@ class Application(tk.Frame):
         opendir.grid(row=6,column=8)
 
     def tag_item(self):
-        self.indexManager.tag_item(self.tagManager.calc_tags_number([1,2]),self.tree.get_path(self.tree.selection(),False))
+        self.indexManager.tag_item(self.tagManager.calc_tags_number([i.get() for i in self.checkboxFrame.getValues()]),self.tree.get_path(self.tree.selection(),False))
 
     def addCheckboxes(self):
         index=0
@@ -118,15 +118,16 @@ class Application(tk.Frame):
             if index%3==0:
                 nrow=0
                 ncol=ncol+1
-            asd=int()             
-            checkbox=tk.Checkbutton(self.checkboxFrame, variable = asd)
-            self.checkBoxes.append(asd)
+
+            value=tk.IntVar()             
+            checkbox=tk.Checkbutton(self.checkboxFrame, variable = value)
+            self.checkBoxes.append(value)
             label=tk.Label(self.checkboxFrame,text=str(i))
             
             label.grid(row=nrow,column=ncol)
-            checkbox.grid(row=nrow,column=ncol+1)
+            checkbox.grid(row=nrow,column=ncol+2)
 
-            nrow+=1
+            nrow+=2
             index+=1
 
     def addCombobox(self):

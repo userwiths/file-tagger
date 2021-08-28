@@ -1,7 +1,8 @@
 import re
+from core import VirtualManager
 from declaration import config,factory,VNode
 
-class VirtualManager:
+class VirtualManager(VirtualManager):
     def __init__(self):
         self.index_manager=factory.getInstanceByName(config.indexManager)
         self.tag_manager=factory.getInstanceByName(config.tagsManager)
@@ -9,7 +10,7 @@ class VirtualManager:
     def get_root_items(self):
         result=[]
         for i in self.index_manager.get_indexed_files():
-            vnode=VNode().build(i)
+            vnode=i
             root=re.split(r' |/|\\',vnode.path)[0]
             
             if root not in result:
@@ -21,24 +22,18 @@ class VirtualManager:
         return result
 
     def get_all_items(self):
-        temp=self.index_manager.get_indexed_files()
-        return [VNode().build(i) for i in temp]
+        return self.index_manager.get_indexed_files()
 
-    def get_item(self,path):
-        return [VNode().build(i) for i in self.index_manager.get_indexed_files() if VNode().build(i).path==path]
+    def get_item(self,path:str):
+        return [i for i in self.index_manager.get_indexed_files() if i.path==path]
 
-    def get_children(self,path):
-        result=[VNode().build(i) for i in self.index_manager.get_indexed_files() if VNode().build(i).path.startswith(path)]
-        return [r for r in result if r.path!=path and r.path.startswith(path)]
+    def get_children(self,path:str):
+        return [r for r in self.index_manager.get_indexed_files() if r.path!=path and r.path.startswith(path)]
 
-    def get_parent(self,path):
+    def get_parent(self,path:str):
         files=self.index_manager.get_indexed_files()
-        files=[VNode().build(i) for i in files if path.startswith(VNode().build(i).path)]
+        files=[i for i in files if path.startswith(i.path)]
         return files
         
-    def is_traversable(self,path):
-        return len([i for i in self.index_manager.get_indexed_files() if VNode().build(i).path.startswith(path) and VNode().build(i).path!=path])>0
-
-    def buildNodeFromLine(self,line):
-        vnode=VNode()        
-        return vnode.build(line)
+    def is_traversable(self,path:str):
+        return len([i for i in self.index_manager.get_indexed_files() if i.path.startswith(path) and i.path!=path])>0

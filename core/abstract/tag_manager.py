@@ -1,12 +1,14 @@
-from declartaion import config, factory,invalidate
+from .index_manager import IndexManager
 
 class TagManager:
     def __init__(self):
-        self.indexManager=factory.getInstanceByName(config.indexManager)
+        self.indexManager=IndexManager()
         self.tags_file=config.tagsFile
         self.tags=[]
         self.available_tags=[]
         self.selected_paths=[]
+
+        self.delimiter=';'
 
     # Use and override for new implementations 
     def get_tags(self):
@@ -14,46 +16,37 @@ class TagManager:
             self.load_tags()
 
         return self.available_tags
-        
+    
     def load_tags(self):
+        self.tags=[]
         path=self.tags_file
 
-        file=open(path,"r")
-        tags=file.readlines()
-        file.close()
+        with open(path,newline='') as csvfile:
+            reader=csv.reader(csvfile,delimiter=self.delimiter)
+            for row in reader:
+                if len(row)==2:
+                    self.tags.append(row)
+                    self.available_tags.append(row[1])
 
-        tempTags=self.format_lines_before_read(tags)
-        self.tags=[line.split(';') for line in tempTags]
-        self.available_tags=[line[1] for line in self.tags]
-
-        return tags
-    
+        return self.tags
+        
     #Get number coresponding to a unique sequence of tags.
     def calc_tags_number(self,tag_indexes:list):
         number=1
-        for tag in tag_indexes:
-            number*=int(self.tags[tag][0])
+        for i in range(0,len(tag_indexes)):
+            if(tag_indexes[i]!=0):
+                number*=int(self.tags[i][0])
         return number
 
     #Get unique sequence of tags coresponding to a given number.
     def calc_number_tags(self,number:int):
         return [i for i in sympy.divisors(number) if sympy.isprime(i)]
 
-    def get_tags_from(self,number:int):
-        tagIndexes=self.calc_number_tags(number)
-        result=[]
-        for i in tagIndexes:
-            result.append(self.available_tags[i])
-        return result
-
     def get_tag_number(self,tag_index:int):
         return int(self.tags[tag_index][0])
 
     def get_number_item(self,item_path:str):
         return [i.split(';')[1] for i in self.get_indexed_files() if i.strip('\n')==item_path]
-
-    def format_lines_before_read(self,lines:list):
-        return [i.strip('\n') for i in lines if not len([e for e in config.commentSymbols if i.startswith(e)])>0 and len(i)>2]
 
     def verify_tag_integrity(self):
         tags=self.load_tags()
@@ -82,12 +75,16 @@ class TagManager:
     def add_new_tag(self,tag_name:str):
         #get last assigned number
         number=int(self.tags[-1][0])
-        #get next prime number to be the assigned to the new tag
         number=sympy.nextprime(number)
-        file=open(self.tags_file,'a')
-        file.write('\n'+str(number)+";"+tag_name)
-        file.close()
+
+        with open(self.tags_file, 'a', newline='') as f:
+            writer = csv.writer(f,delimiter=self.delimiter)
+            writer.writerow([number,tag_name])
+        
+        self.load_tags()
+
         return number
+
 
     def remove_existing_tag(self,tag_index:int):
         self.indexManager.reindex_files(int(self.tags[tag_index].split(';')[0]))
@@ -95,14 +92,15 @@ class TagManager:
     def edit_existing_tag(self,tag_index:int,tag_name:str):
         tags=[]
         edited_tag=self.tags[tag_index]
-        file=open(self.tags_file,'r')
-        tags=file.readlines()
-        file.close()
+        
+        with open(self.tags_file,newline='') as csvfile:
+            reader=csv.reader(csvfile,delimiter=self.delimiter)
+            for row in reader:
+                if row[0]==edited_tag[0]:
+                    tags.append([row[0],tag_name])
+                else:
+                    tags.append(row)
 
-        file=open(self.tags_file,'w')
-        for i in tags:
-            if i.count(edited_tag[0]+';'+edited_tag[1])>0:
-                file.write(edited_tag[0]+';'+tag_name+'\n')
-            else:
-                file.write(i)
-        file.close()
+        with open(self.tags_file, 'a', newline='') as f:
+            writer = csv.writer(f,delimiter=self.delimiter)
+            writer.writerows(tags)
