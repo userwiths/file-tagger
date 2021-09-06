@@ -12,12 +12,12 @@ class VNode:
     def build(self,data:object):
         dtype=type(data)
         if dtype is list:
-            return self.buildList(data)
+            return self.__buildList(data)
         elif dtype is str:
-            return self.buildString(data)
+            return self.__buildString(data)
         return None
 
-    def buildList(self,data:list):
+    def __buildList(self,data:list):
         self.value=data[1]
         self.path=data[0]
         self.name=re.split(r' |/|\\',self.path)[-1:]
@@ -27,7 +27,7 @@ class VNode:
 
         return self
 
-    def buildString(self,data:str):
+    def __buildString(self,data:str):
         self.value=data.split(';')[1]
         self.path=data.split(';')[0]
         self.name=re.split(r' |/|\\',self.path)[-1:]

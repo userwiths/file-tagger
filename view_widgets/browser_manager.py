@@ -1,10 +1,9 @@
 from tkinter import ttk
 import tkinter as tk
-from PIL import Image, ImageTk
-
+from .abstract import Scroller
 from declaration import config, factory
 
-class BrowserManager(ttk.Treeview):
+class BrowserManager(ttk.Treeview,Scroller):
     """
     Represents a tree which is used to display the currently tagged files and theyr tag numbers or/and tags.
     """
@@ -16,6 +15,7 @@ class BrowserManager(ttk.Treeview):
         ]
         
         super().__init__(parentContainer,columns=[i[0] for i in self.columns],show='tree',displaycolumns=['tags'])
+        Scroller.__init__(self,parentContainer)
 
         for i in self.columns:
             self.heading(i[0],text=i[1])
@@ -25,11 +25,6 @@ class BrowserManager(ttk.Treeview):
         self.tagger=factory.getInstanceByName(config.tagsManager)
         self.application=application
         self.rootText=root_nodes[0]
-
-        ysb = ttk.Scrollbar(parentContainer, orient='vertical', command=self.yview)
-        xsb = ttk.Scrollbar(parentContainer, orient='horizontal', command=self.xview)
-        
-        self.configure(yscroll=ysb.set, xscroll=xsb.set)
         
         self.root_nodes=root_nodes
         
@@ -38,8 +33,6 @@ class BrowserManager(ttk.Treeview):
         self.populate_tree=populate_tree
 
         self.grid(row=0, column=0,rowspan=10)
-        ysb.grid(column=1,row=0,rowspan=10,sticky="ns")
-        xsb.grid(column=0,row=10,columnspan=1,sticky='ew')
 
     def __init_childs__(self):
         """
