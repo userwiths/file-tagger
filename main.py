@@ -165,7 +165,10 @@ class Application(tk.Frame):
                 if not file.path.endswith(part):
                     value=None
                 else:
-                    value=file.value
+                    value=int(file.value)
+                    index_arr=self.tagManager.calc_number_tags(value)
+                    text_tags=[self.tagManager.get_tag_value_text(i) for i in index_arr]
+                    value=",".join(text_tags)
                     
                 same_name=[e for e in map if e[1]==part]
                 if len([child for child in self.browserIndexed.get_children(branch) if self.browserIndexed.item(child)['text']==part])==0:

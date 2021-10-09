@@ -48,6 +48,12 @@ class TagManager(TagManager):
     def get_tag_number(self,tag_index:int):
         return int(self.tags[tag_index][0])
 
+    def get_tag_index_text(self,tag_index:int):
+        return self.tags[tag_index][1]
+
+    def get_tag_value_text(self,tag_value:int):
+        return [i[1] for i in self.tags if int(i[0])==tag_value][0]
+
     def get_number_item(self,item_path:str):
         return [i.split(';')[1] for i in self.get_indexed_files() if i.strip('\n')==item_path]
 
