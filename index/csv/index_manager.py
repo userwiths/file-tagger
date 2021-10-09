@@ -84,11 +84,13 @@ class IndexManager(IndexManager):
         """
         Reindex in case a tag has been deleted.
         """
-        files_indexes=self.indexed_items
-        number=0
         with open(self.index_item_file, 'w', newline=self.new_line) as f:
             writer = csv.writer(f,delimiter=self.delimiter)
-            writer.writerow([index[0],str(number),index[2]])
+            for index in self.indexed_items:        
+                if int(index.value)%removed_tag_number==0:
+                    writer.writerow([index.path,int(int(index.value)/removed_tag_number),self.get_type(index.path)])
+                else:
+                    writer.writerow([index.path,index.value,self.get_type(index.path)])
 
     def get_type(self,path:str):
         if path.startswith("http"):

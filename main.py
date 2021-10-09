@@ -25,7 +25,7 @@ class Application(tk.Frame):
 
         self.notebook=ttk.Notebook(master)
         self.checkBoxes=[]
-        self.path='D:/Other'
+        self.path='/'
 
         self.frame=tk.Frame(master)
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -207,9 +207,10 @@ class Application(tk.Frame):
     
     def apply_tag_action(self):
         selectedIndex=self.tagList.curselection()[0]
-        print(selectedIndex)
         if selectedIndex==0 :
             self.tagManager.add_new_tag(self.tagName.get())
+        elif self.tagName.get() == "":
+            self.tagManager.remove_existing_tag(selectedIndex-1)
         else:
             self.tagManager.edit_existing_tag(selectedIndex-1,self.tagName.get())
 

@@ -98,7 +98,18 @@ class TagManager(TagManager):
 
     @invalidate
     def remove_existing_tag(self,tag_index:int):
-        self.indexManager.reindex_files(int(self.tags[tag_index].split(';')[0]))
+        value_remove=int(self.tags[tag_index][0])
+        self.indexManager.reindex_files(value_remove)
+        tags=[]
+        with open(self.tags_file,newline='') as csvfile:
+            reader=csv.reader(csvfile,delimiter=self.delimiter)
+            for row in reader:
+                if int(row[0])!=value_remove:
+                    tags.append(row)
+
+        with open(self.tags_file, 'w', newline='') as f:
+            writer = csv.writer(f,delimiter=self.delimiter)
+            writer.writerows(tags)
 
     @invalidate
     def edit_existing_tag(self,tag_index:int,tag_name:str):
