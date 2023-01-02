@@ -8,7 +8,7 @@ class FileManager(FileManager):
     def __init__(self):
         pass
 
-    def get_children(self,path:str):
+    def get_children(self, path:str):
         """ 
         In case the given 'path' is traversible
         Returns the 'children' of the given 'path'.
@@ -17,15 +17,15 @@ class FileManager(FileManager):
             return os.listdir(path)
         return []
 
-    def get_parent(self,path:str):
+    def get_parent(self, path:str):
         """ 
         Returns one level lower path.
         get_parent('/1/2/3/4/5') will return '\\1\\2\\3\\4'
         """
-        pathArray=re.split(r' |/|\\',path)[:-1]
-        return '\\'.join(pathArray)
+        pathArray=re.split(r' |/|\\', path)[:-1]
+        return os.sep.join(pathArray)
         
-    def is_traversable(self,path:str):
+    def is_traversable(self, path:str):
         """
         Returns if the path is traversible.
         """
