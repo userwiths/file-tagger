@@ -58,10 +58,10 @@ class TagManager(TagManager):
         return [i.split(';')[1] for i in self.get_indexed_files() if i.strip('\n')==item_path]
 
     def verify_tag_integrity(self):
-        tags=self.load_tags()
+        tags = self.load_tags()
         
-        numbers=[]
-        names=[]
+        numbers = []
+        names = []
         
         for tag in tags:
             #unique names

@@ -1,3 +1,7 @@
 sympy
 unittest
 unittest.mock
+pymongo
+mysqlclient
+sqlite3
+psycopg2

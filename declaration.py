@@ -5,10 +5,10 @@ import logging
 
 class VNode:
     def __init__(self):
-        self.path=''
-        self.name=''
-        self.value=0
-        self.other={}
+        self.path = ''
+        self.name = ''
+        self.value = 0
+        self.other = {}
 
     def build(self,data:object):
         dtype = type(data)
